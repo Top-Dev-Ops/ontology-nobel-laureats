@@ -1,0 +1,113 @@
+package ontology;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.jena.ontology.OntModel;
+import org.apache.jena.query.Query;
+import org.apache.jena.query.QueryExecution;
+import org.apache.jena.query.QueryExecutionFactory;
+import org.apache.jena.query.QueryFactory;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.rdf.model.Literal;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.vocabulary.RDF;
+
+public class RDFprocessing {
+
+	public static void main(String[] args) {
+		String baseLaureat = "./data/data.nt";
+		OntModel modelLaureat = ModelFactory.createOntologyModel();
+		modelLaureat.read(baseLaureat, "XML");
+		System.out.println("Loading is done...");
+		String query = "SELECT ?name ?other WHERE { ?name <http://data.nobelprize.org/terms/share> $other .}";
+		Query queryLaureat = QueryFactory.create(query);
+		QueryExecution qeLaureat = QueryExecutionFactory.create(queryLaureat, modelLaureat);
+		ResultSet results = qeLaureat.execSelect();
+		while(results.hasNext()) {
+			QuerySolution qs = results.next();
+			Resource list = qs.getResource("name");
+			// System.out.println(list.toString() + " : " + qs.getLiteral("other"));
+			String anotherQuery = "SELECT ?department " + "WHERE {<" + list.toString() + "> <http://www.w3.org/2000/01/rdf-schema#label> ?department .}";
+			Query depQuery = QueryFactory.create(anotherQuery);
+			QueryExecution qe = QueryExecutionFactory.create(depQuery, modelLaureat);
+			ResultSet result = qe.execSelect();
+			while(result.hasNext()) {
+				QuerySolution temp = result.next();
+				String department = temp.getLiteral("department").toString();
+				if(department.indexOf("1901") > 0) {
+					// Prints out the departments in the year of 1901.
+					// System.out.println(department.substring(0, department.indexOf("1901") - 1));
+				}
+			}
+			qe.close();
+		}
+		qeLaureat.close();
+		
+		List<String> countries = new ArrayList<String>();
+		List<String> universities = new ArrayList<String>();
+		
+		query = "SELECT ?name WHERE { ?name <http://data.nobelprize.org/terms/category> <http://data.nobelprize.org/resource/category/Physiology_or_Medicine> . }";
+		queryLaureat = QueryFactory.create(query);
+		qeLaureat = QueryExecutionFactory.create(queryLaureat, modelLaureat);
+		results = qeLaureat.execSelect();
+		while(results.hasNext()) {
+			QuerySolution qs = results.next();
+			String laureatAwardString = qs.getResource("name").toString();
+			if(laureatAwardString.contains("laureateaward")) {
+				String anotherQuery = "SELECT ?laureat WHERE { ?laureat <http://data.nobelprize.org/terms/laureateAward> <" + laureatAwardString + "> .}";
+				String universityQu = "SELECT ?university WHERE {<" + laureatAwardString + "> <http://data.nobelprize.org/terms/university> ?university .}"; 
+				Query laureatQuery = QueryFactory.create(anotherQuery);
+				Query universityQuery = QueryFactory.create(universityQu);
+				QueryExecution qe = QueryExecutionFactory.create(laureatQuery, modelLaureat);
+				QueryExecution anotherqe = QueryExecutionFactory.create(universityQuery, modelLaureat);
+				ResultSet result = qe.execSelect();
+				ResultSet anotherresult = anotherqe.execSelect();
+				
+//				while(anotherresult.hasNext()) {
+//					System.out.println();
+//				}
+				while(result.hasNext()) {
+					QuerySolution temp = result.next();
+					String laureatString = temp.getResource("laureat").toString();
+					
+					if(laureatString.contains("laureate")) {
+						String another = "SELECT ?country WHERE {<" + laureatString + "> <http://dbpedia.org/ontology/birthPlace> ?country .}";
+						Query countryQuery = QueryFactory.create(another);
+						QueryExecution q = QueryExecutionFactory.create(countryQuery, modelLaureat);
+						ResultSet res = q.execSelect();
+						while(res.hasNext()) {
+							QuerySolution anotherTemp = res.next();
+							String country = anotherTemp.getResource("country").toString();
+							if(country.contains("country")) {
+								String[] countrys = country.split("/");
+								if(!countries.contains(countrys[countrys.length - 1])) {
+									String temp_country = countrys[countrys.length - 1];
+									String[] temp_univeresities = anotherresult.next().getResource("university").toString().split("/");
+									String temp_university = temp_universities[temp_universities.length - 1];
+									countries.add(countrys[countrys.length - 1]);
+									
+								}
+							}
+						}
+						
+					}
+				}
+				
+				
+			}
+		}
+		Iterator iterCountry = countries.iterator();
+		Iterator iterUniversity = universities.iterator();
+		while(iterCountry.hasNext()) {
+			System.out.println(iterCountry.next() + " : " + iterUniversity.next());
+		}
+//		String text = ResultSetFormatter.asText(results);
+//		System.out.println(text);
+	}
+}

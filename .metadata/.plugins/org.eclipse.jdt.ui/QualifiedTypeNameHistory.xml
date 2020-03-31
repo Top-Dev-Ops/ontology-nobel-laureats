@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<qualifiedTypeNameHistroy>
+    <fullyQualifiedTypeName name="org.apache.jena.rdf.model.ModelFactory"/>
+    <fullyQualifiedTypeName name="org.apache.jena.ontology.OntModel"/>
+    <fullyQualifiedTypeName name="org.apache.jena.query.QuerySolution"/>
+    <fullyQualifiedTypeName name="org.apache.jena.rdf.model.Resource"/>
+    <fullyQualifiedTypeName name="org.apache.jena.vocabulary.RDF"/>
+    <fullyQualifiedTypeName name="org.apache.jena.rdf.model.RDFNode"/>
+    <fullyQualifiedTypeName name="java.util.ArrayList"/>
+    <fullyQualifiedTypeName name="java.util.List"/>
+    <fullyQualifiedTypeName name="java.util.Iterator"/>
+</qualifiedTypeNameHistroy>
