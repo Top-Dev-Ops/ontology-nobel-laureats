@@ -23,7 +23,7 @@ JDK or JRE should be installed to run the program.
 Installation
 ************
 
-```sh
+```bash
 javac RDFprocessing.java
 java RDFprocessing
 ```
